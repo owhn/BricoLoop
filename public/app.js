@@ -17,6 +17,7 @@ const myLoansStatus = $("#my-loans-status");
 const respondForm = $("#respond-form");
 const dialog = $("#tool-dialog");
 const borrowForm = $("#borrow-form");
+const damageForm = $("#damage-form");
 
 // Noms des outils, pour afficher « Mes emprunts » sans refaire une requête par ligne.
 let toolNames = new Map();
@@ -129,6 +130,7 @@ function renderTool(tool) {
 
   const meta = el("span", "tool__meta");
   meta.append(el("span", "chip", tool.category), badge(tool.status, TOOL_STATUS));
+  if (tool.abime) meta.append(el("span", "chip", "Abîmé"));
   card.append(el("span", "tool__name", tool.name), meta);
   if (tool.description) card.append(el("span", "tool__description", tool.description));
 
@@ -140,6 +142,9 @@ function renderTool(tool) {
 async function openTool(id) {
   currentToolId = id;
   resetForm(borrowForm);
+  resetForm(damageForm);
+  damageForm.hidden = true;
+  $("#tool-dialog-damage").textContent = "";
   borrowForm.reset();
   $("#tool-dialog-title").textContent = "Chargement…";
   $("#tool-dialog-meta").replaceChildren();
@@ -154,6 +159,8 @@ async function openTool(id) {
       return;
     }
     $("#tool-dialog-title").textContent = data.name;
+    damageForm.hidden = false;
+    $("#tool-dialog-damage").textContent = data.abime ? "Cet outil a été signalé abîmé." : "";
     $("#tool-dialog-meta").replaceChildren(el("span", "chip", data.category), badge(data.status, TOOL_STATUS));
     $("#tool-dialog-description").textContent = data.description ?? "Pas de description.";
     $("#tool-dialog-owner").textContent = data.owner
@@ -162,6 +169,20 @@ async function openTool(id) {
   } catch (err) {
     $("#tool-dialog-title").textContent = `Erreur réseau : ${err.message}`;
   }
+}
+
+// US-15 : les refus de l'API sont affichés en clair dans la fiche.
+async function signalDamage(event) {
+  event.preventDefault();
+  const toolId = currentToolId;
+  await submitWith(damageForm, async () => {
+    const res = await api("PATCH", `/api/tools/${encodeURIComponent(toolId)}/abime`);
+    if (currentToolId !== toolId) return;
+    if (!res.ok) return showApiError(damageForm, res.data);
+    $("#tool-dialog-damage").textContent = "Cet outil a été signalé abîmé.";
+    setMessage(damageForm, "Signalement enregistré.", "success");
+    await loadCatalogue();
+  });
 }
 
 async function borrowTool(event) {
@@ -225,7 +246,7 @@ function renderLoan(loan) {
   return item;
 }
 
-// US-05 : le propriétaire accepte ou refuse une demande.
+// US-05 : le propriétaire accepte ou refuse une demande ; US-07 : il déclare l'outil rendu.
 async function respond(event) {
   event.preventDefault();
   const status = event.submitter?.value;
@@ -233,7 +254,11 @@ async function respond(event) {
     const loanId = new FormData(respondForm).get("loanId").trim();
     if (!loanId) return showApiError(respondForm, { error: "loan: indique le n° de la demande" });
 
-    const res = await api("PATCH", `/api/loans/${encodeURIComponent(loanId)}`, { status });
+    const id = encodeURIComponent(loanId);
+    const res =
+      status === "returned"
+        ? await api("PATCH", `/api/returns/${id}/return`)
+        : await api("PATCH", `/api/loans/${id}`, { status });
     if (!res.ok) return showApiError(respondForm, res.data);
     setMessage(respondForm, `Demande n°${res.data.id} : ${LOAN_STATUS[res.data.status].toLowerCase()}.`, "success");
     await Promise.all([loadCatalogue(), loadMyLoans()]);
@@ -249,6 +274,7 @@ userInput.addEventListener("change", () => {
 description.addEventListener("input", () => (descriptionCount.textContent = String(description.value.length)));
 lendForm.addEventListener("submit", lendTool);
 borrowForm.addEventListener("submit", borrowTool);
+damageForm.addEventListener("submit", signalDamage);
 respondForm.addEventListener("submit", respond);
 $("#catalogue-refresh").addEventListener("click", loadCatalogue);
 $("#my-loans-refresh").addEventListener("click", loadMyLoans);

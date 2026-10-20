@@ -71,7 +71,7 @@
         </section>
 
         <section aria-labelledby="respond-title" class="panel">
-          <h2 id="respond-title">Répondre à une demande</h2>
+          <h2 id="respond-title">Gérer une demande</h2>
           <p class="hint">Réservé au propriétaire de l'outil. Le n° de demande est affiché à l'emprunteur.</p>
           <form id="respond-form" novalidate>
             <label for="loan-id">N° de demande</label>
@@ -81,6 +81,9 @@
               <button type="submit" name="status" value="accepted">Accepter</button>
               <button type="submit" name="status" value="refused" class="secondary">Refuser</button>
             </div>
+            <button type="submit" name="status" value="returned" id="return-button" class="secondary">
+              Outil rendu
+            </button>
             <p class="form-message" role="status"></p>
           </form>
         </section>
@@ -93,6 +96,12 @@
       <p class="tool__meta" id="tool-dialog-meta"></p>
       <p id="tool-dialog-description" class="tool__description"></p>
       <p id="tool-dialog-owner" class="owner"></p>
+
+      <form id="damage-form">
+        <p id="tool-dialog-damage" role="status"></p>
+        <button type="submit">Signaler cet outil abîmé</button>
+        <p class="form-message" role="status" aria-live="polite"></p>
+      </form>
 
       <form id="borrow-form" novalidate>
         <h3>Demander à l'emprunter</h3>
