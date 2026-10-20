@@ -6,7 +6,7 @@ Priorité absolue : respecter la Definition of Done ci-dessous. On réduit le p�
 
 ## Stack (ne pas en sortir sans demande explicite)
 - Node 24 LTS, ESM ("type": "module"), Express 5
-- Stockage en mémoire uniquement (pas de BDD, pas de fichier JSON)
+- Stockage : Supabase (Postgres, @supabase/supabase-js) pour `npm start` ; store en mémoire pour les tests (décision équipe, sprint 0)
 - Vitest + Supertest
 - ESLint 9 flat config, `--max-warnings=0`
 - Front : HTML/JS natif dans public/, servi par express.static. Pas de React, pas de Vite, pas de TypeScript.
@@ -15,7 +15,11 @@ Priorité absolue : respecter la Definition of Done ci-dessous. On réduit le p�
 ## Architecture
 src/app.js            createApp({ store }) — ne fait JAMAIS listen()
 src/server.js         seul fichier qui appelle listen()
-src/store.js          createStore(seed?) → { users, tools, loans, nextId(prefix) }
+src/store.js          createStore(seed?) → store en mémoire (tests)
+src/supabaseStore.js  createSupabaseStore(client) → store Supabase (npm start), même interface
+src/supabase.js       createSupabaseClient() depuis SUPABASE_URL / SUPABASE_SECRET_KEY (.env)
+supabase/schema.sql   schéma des tables, à exécuter dans l'éditeur SQL Supabase
+scripts/db-seed.js    npm run db:seed → upsert de src/seed.js dans Supabase
 src/seed.js           données de démo
 src/errors.js         class HttpError extends Error { constructor(status, message) }
 src/middleware/currentUser.js   X-User-Id → req.user (null si absent)
@@ -28,7 +32,9 @@ test/                 un fichier par story : usXX-slug.test.js
 
 Règles :
 - Le store est TOUJOURS injecté via createApp, jamais importé en global dans les routes.
-- Chaque test crée son propre store (createStore(fixture) ou createStore() vide).
+- Interface du store, toute async : store.{users,tools,loans}.{list(), get(id) → objet|null, insert(data) → objet avec id, update(id, patch) → objet|null}.
+  Toute évolution de l'interface se fait dans les DEUX stores.
+- Chaque test crée son propre store (createStore(fixture) ou createStore() vide). Aucun test ne touche Supabase.
 - Toute erreur métier = throw new HttpError(status, "champ: message"). Pas de res.status(...) dispersé.
 - Format d'erreur unique : { "error": "<champ>: <message>" }.
 - Dates : chaînes "AAAA-MM-JJ", comparées comme chaînes. Pas d'objets Date.
