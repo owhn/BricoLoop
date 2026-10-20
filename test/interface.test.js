@@ -21,6 +21,7 @@ describe("interface (public/)", () => {
     ["US-05 répondre à une demande", 'id="respond-form"'],
     ["US-07 déclarer un retour", 'id="return-button"'],
     ["US-08 mes emprunts", 'id="my-loans"'],
+    ["US-10 filtre par catégorie", 'id="category-filter"'],
   ])("la page contient l'écran %s", async (_story, marker) => {
     const app = createApp({ store: createStore() });
 
