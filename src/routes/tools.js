@@ -7,8 +7,9 @@ export function toolsRouter(store) {
   const router = Router();
 
   // US-01 : catalogue des outils, disponibles en premier.
-  router.get("/", (_req, res) => {
-    const tools = [...store.tools].sort((a, b) => rank(a) - rank(b));
+  router.get("/", async (_req, res) => {
+    const tools = await store.tools.list();
+    tools.sort((a, b) => rank(a) - rank(b));
     res.json(tools);
   });
 
