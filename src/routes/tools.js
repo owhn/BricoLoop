@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { HttpError } from "../errors.js";
 import { requireUser } from "../middleware/currentUser.js";
 import { createTool } from "../services/tools.js";
 
@@ -20,6 +21,18 @@ export function toolsRouter(store) {
     const user = requireUser(req);
     const tool = await createTool(store, user, req.body);
     res.status(201).json(tool);
+  });
+
+  // US-03 : fiche d'un outil et informations publiques du propriétaire.
+  router.get("/:id", async (req, res) => {
+    const tool = await store.tools.get(req.params.id);
+    if (!tool) throw new HttpError(404, "toolId: outil introuvable");
+
+    const owner = await store.users.get(tool.ownerId);
+    res.json({
+      ...tool,
+      owner: owner ? { firstName: owner.firstName, district: owner.district } : null,
+    });
   });
 
   return router;

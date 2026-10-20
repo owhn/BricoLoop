@@ -2,10 +2,59 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BricoLoop</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
   </head>
   <body>
-    <h1>BricoLoop</h1>
-    <p>Prêt d'outils entre voisins.</p>
+    <header class="topbar">
+      <div>
+        <h1>BricoLoop</h1>
+        <p class="tagline">Prêt d'outils entre voisins</p>
+      </div>
+      <label class="whoami">
+        Je suis l'utilisateur n°
+        <input id="user-id" type="text" inputmode="numeric" size="4" placeholder="1" />
+      </label>
+    </header>
+
+    <main>
+      <section aria-labelledby="catalogue-title">
+        <h2 id="catalogue-title">Catalogue</h2>
+        <p id="catalogue-status" class="muted" role="status">Chargement…</p>
+        <ul id="catalogue" class="tools"></ul>
+      </section>
+
+      <section aria-labelledby="lend-title" class="panel">
+        <h2 id="lend-title">Prêter un outil</h2>
+        <form id="lend-form" novalidate>
+          <label for="name">Nom</label>
+          <input id="name" name="name" type="text" maxlength="60" required />
+          <p class="hint">2 à 60 caractères</p>
+          <p class="field-error" data-error-for="name"></p>
+
+          <label for="category">Catégorie</label>
+          <select id="category" name="category" required>
+            <option value="">— Choisir —</option>
+            <option>Perçage</option>
+            <option>Jardinage</option>
+            <option>Peinture</option>
+            <option>Nettoyage</option>
+            <option>Mesure</option>
+            <option>Autre</option>
+          </select>
+          <p class="field-error" data-error-for="category"></p>
+
+          <label for="description">Description <span class="muted">(facultative)</span></label>
+          <textarea id="description" name="description" rows="3" maxlength="300"></textarea>
+          <p class="hint"><span id="description-count">0</span> / 300</p>
+          <p class="field-error" data-error-for="description"></p>
+
+          <button type="submit">Prêter cet outil</button>
+          <p id="form-message" role="status"></p>
+        </form>
+      </section>
+    </main>
   </body>
 </html>

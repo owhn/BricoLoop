@@ -13,11 +13,13 @@ Première fois :
 
 ```bash
 npm install
-npm start        # http://localhost:3000 (GET /health) — utilise Supabase
+npm start        # http://localhost:3000 — utilise Supabase
 npm run check    # lint (0 warning) + tests (store en mémoire, sans Supabase)
 ```
 
-Requêtes de démo : [api.http](api.http).
+Interface : ouvrir http://localhost:3000. Catalogue (US-01) et formulaire « Prêter un outil » (US-02) ; saisir son numéro d'utilisateur en haut à droite.
+
+Requêtes de démo de l'API : [api.http](api.http).
 
 ## Équipe / rotation PO-SM
 
