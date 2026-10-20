@@ -2,3 +2,6 @@
 
 ### Santé de l'API
 GET {{baseUrl}}/health
+
+### US-01 Catalogue des outils (disponibles en premier)
+GET {{baseUrl}}/api/tools
