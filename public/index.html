@@ -13,10 +13,13 @@
         <h1>BricoLoop</h1>
         <p class="tagline">Prêt d'outils entre voisins</p>
       </div>
-      <label class="whoami">
-        Je suis l'utilisateur n°
-        <input id="user-id" type="text" inputmode="numeric" size="4" placeholder="1" />
-      </label>
+      <div class="whoami">
+        <label for="user-id">Se connecter en tant que</label>
+        <select id="user-id">
+          <option value="">— Choisir un voisin —</option>
+        </select>
+        <span id="connected" role="status"></span>
+      </div>
     </header>
 
     <main>

@@ -19,6 +19,7 @@ const respondForm = $("#respond-form");
 const dialog = $("#tool-dialog");
 const borrowForm = $("#borrow-form");
 const damageForm = $("#damage-form");
+const connected = $("#connected");
 
 // Noms des outils, pour afficher « Mes emprunts » sans refaire une requête par ligne.
 let toolNames = new Map();
@@ -84,7 +85,7 @@ function showApiError(form, data) {
   if (field === "X-User-Id") {
     userInput.setAttribute("aria-invalid", "true");
     userInput.focus();
-    setMessage(form, "Indique d'abord ton numéro d'utilisateur (en haut à droite).", "error");
+    setMessage(form, "Choisis d'abord ton voisin (en haut à droite).", "error");
     return;
   }
   const slot = form.querySelector(`[data-error-for="${field}"]`);
@@ -233,7 +234,7 @@ async function lendTool(event) {
 async function loadMyLoans() {
   myLoans.replaceChildren();
   if (!userInput.value.trim()) {
-    myLoansStatus.textContent = "Indique ton numéro d'utilisateur pour voir tes emprunts.";
+    myLoansStatus.textContent = "Choisis ton voisin (en haut à droite) pour voir tes emprunts.";
     return;
   }
   myLoansStatus.textContent = "Chargement…";
@@ -277,10 +278,42 @@ async function respond(event) {
   });
 }
 
+// US-17 Connexion simple : remplit la liste des voisins (GET /api/users).
+async function loadUsers() {
+  try {
+    const { ok, data } = await api("GET", "/api/users");
+    if (!ok) {
+      connected.textContent = parseApiError(data).message;
+      return;
+    }
+    for (const user of data) {
+      userInput.append(new Option(`${user.firstName} (${user.district})`, user.id));
+    }
+  } catch (err) {
+    connected.textContent = `Erreur réseau : ${err.message}`;
+  }
+}
+
+// US-17 Connexion simple : affiche le voisin connecté et son rôle (GET /api/me).
+async function showConnected() {
+  if (!userInput.value) {
+    connected.textContent = "Personne n'est connecté.";
+    return;
+  }
+  try {
+    const { ok, data } = await api("GET", "/api/me");
+    connected.textContent = ok ? `Connecté : ${data.firstName} (${data.role})` : parseApiError(data).message;
+  } catch (err) {
+    connected.textContent = `Erreur réseau : ${err.message}`;
+  }
+}
+
+await loadUsers();
 userInput.value = loadUserId();
 userInput.addEventListener("change", () => {
   userInput.removeAttribute("aria-invalid");
   saveUserId(userInput.value.trim());
+  showConnected();
   loadMyLoans();
 });
 description.addEventListener("input", () => (descriptionCount.textContent = String(description.value.length)));
@@ -295,5 +328,6 @@ categoryFilter.addEventListener("change", loadCatalogue);
 $("#my-loans-refresh").addEventListener("click", loadMyLoans);
 $("#tool-dialog-close").addEventListener("click", () => dialog.close());
 
+await showConnected();
 await loadCatalogue();
 await loadMyLoans();

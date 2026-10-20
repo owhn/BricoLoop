@@ -106,3 +106,10 @@ Content-Type: application/json
 X-User-Id: 2
 
 { "status": "accepted" }
+
+### US-17 Connexion simple : la liste des voisins (pour la liste déroulante)
+GET {{baseUrl}}/api/users
+
+### US-17 Connexion simple : qui est connecté ? (Alice, voisine 1)
+GET {{baseUrl}}/api/me
+X-User-Id: 1
