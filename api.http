@@ -1,5 +1,11 @@
 @baseUrl = http://localhost:3000
 
+### US-03 — détail d'un outil et de son propriétaire
+GET {{baseUrl}}/api/tools/1
+
+### US-03 — identifiant inconnu → 404
+GET {{baseUrl}}/api/tools/999999
+
 ### Santé de l'API
 GET {{baseUrl}}/health
 
