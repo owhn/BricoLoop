@@ -22,6 +22,7 @@ const damageForm = $("#damage-form");
 // Noms des outils, pour afficher « Mes emprunts » sans refaire une requête par ligne.
 let toolNames = new Map();
 let currentToolId = null;
+let currentToolAbime = false;
 
 // localStorage peut être indisponible (navigation privée) : l'identifiant n'est alors pas mémorisé.
 function loadUserId() {
@@ -160,7 +161,7 @@ async function openTool(id) {
     }
     $("#tool-dialog-title").textContent = data.name;
     damageForm.hidden = false;
-    $("#tool-dialog-damage").textContent = data.abime ? "Cet outil a été signalé abîmé." : "";
+    renderDamage(data.abime);
     $("#tool-dialog-meta").replaceChildren(el("span", "chip", data.category), badge(data.status, TOOL_STATUS));
     $("#tool-dialog-description").textContent = data.description ?? "Pas de description.";
     $("#tool-dialog-owner").textContent = data.owner
@@ -171,16 +172,22 @@ async function openTool(id) {
   }
 }
 
+function renderDamage(abime) {
+  currentToolAbime = abime === true;
+  $("#tool-dialog-damage").textContent = currentToolAbime ? "Cet outil a été signalé abîmé." : "Cet outil n'est pas signalé abîmé.";
+  damageForm.querySelector("button").textContent = currentToolAbime ? "Signaler comme réparé" : "Signaler cet outil abîmé";
+}
+
 // US-15 : les refus de l'API sont affichés en clair dans la fiche.
 async function signalDamage(event) {
   event.preventDefault();
   const toolId = currentToolId;
   await submitWith(damageForm, async () => {
-    const res = await api("PATCH", `/api/tools/${encodeURIComponent(toolId)}/abime`);
+    const res = await api("PATCH", `/api/tools/${encodeURIComponent(toolId)}/abime`, { abime: !currentToolAbime });
     if (currentToolId !== toolId) return;
     if (!res.ok) return showApiError(damageForm, res.data);
-    $("#tool-dialog-damage").textContent = "Cet outil a été signalé abîmé.";
-    setMessage(damageForm, "Signalement enregistré.", "success");
+    renderDamage(res.data.abime);
+    setMessage(damageForm, res.data.abime ? "Signalement enregistré." : "L'outil n'est plus signalé abîmé.", "success");
     await loadCatalogue();
   });
 }

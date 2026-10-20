@@ -18,6 +18,31 @@ function setup(status = "accepted") {
 }
 
 describe("US-15 — signaler un outil abîmé", () => {
+  it.each(["1", "2"])("autorise aussi la réparation par l'utilisateur %s", async (userId) => {
+    const { store, report, app } = setup();
+    await report(userId);
+    const res = await report(userId).send({ abime: false });
+    expect(res.status).toBe(200);
+    expect(res.body.abime).toBe(false);
+    expect(res.body.status).toBe("lent");
+    expect((await store.tools.get("1")).abime).toBe(false);
+    expect((await request(app).get("/api/tools/1")).body.abime).toBe(false);
+  });
+
+  it("un autre voisin ne peut pas effacer le signalement", async () => {
+    const { report, store } = setup();
+    await report("1");
+    expect((await report("3").send({ abime: false })).status).toBe(403);
+    expect((await store.tools.get("1")).abime).toBe(true);
+  });
+
+  it.each([null, "false", 0, {}])("refuse une valeur non booléenne : %j", async (abime) => {
+    const { report, store } = setup();
+    const res = await report("1").send({ abime });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/^abime: /);
+    expect((await store.tools.get("1")).abime).toBe(false);
+  });
   it("affiche un formulaire avec une zone de message accessible dans la fiche", async () => {
     const { app } = setup();
     const res = await request(app).get("/");

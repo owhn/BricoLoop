@@ -44,6 +44,10 @@ ayant un prêt accepté peuvent signaler. Les erreurs sont affichées dans la fi
 Le signalement ne change pas la disponibilité et ne bloque pas les demandes d'emprunt.
 
 API : `PATCH /api/tools/:id/abime`, avec l'en-tête `X-User-Id`, sans corps.
+Pour indiquer que l'outil est réparé, le même endpoint accepte le JSON `{ "abime": false }`.
+Le bouton de la fiche devient « Signaler comme réparé » lorsque l'outil est abîmé,
+avec les mêmes droits. `{ "abime": true }` signale un dommage ; sans corps, le
+comportement de signalement initial est conservé.
 
 ## Équipe / rotation PO-SM
 
