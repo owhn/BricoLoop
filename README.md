@@ -59,7 +59,7 @@ API : `PATCH /api/tools/:id/abime`, avec l'en-tête `X-User-Id`, sans corps.
 | US-04 Demander un emprunt | #6 | #12 |
 | US-05 Accepter / refuser une demande | #7 | #12 |
 | US-06 Refuser un chevauchement | #9 | #12 |
-| US-07 Déclarer un retour | poussée directement sur main (`74bd072`), sans PR ; correctifs #13, #15 | #16 |
+| US-07 Déclarer un retour | aucune : commitée directement sur main, sans branche ni PR (`74bd072`) ; correctifs #13, #15 | #16 |
 | US-08 Mes demandes et emprunts | #8 | #12 |
 | US-15 Signaler un outil abîmé | #14 | #14 |
 
