@@ -6,6 +6,7 @@ import { toolsRouter } from "./routes/tools.js";
 import { loansRouter } from "./routes/loans.js";
 import { meRouter } from "./routes/me.js";
 import { returnsRouter } from "./routes/returns.js";
+import { toolActionsRouter } from "./routes/toolActions.js";
 
 export function createApp({ store }) {
   const app = express();
@@ -24,6 +25,7 @@ export function createApp({ store }) {
   app.use("/api/loans", loansRouter(store));
   app.use("/api/me", meRouter(store));
   app.use("/api/returns", returnsRouter(store));
+  app.use("/api/tool-actions", toolActionsRouter(store));
 
   app.use(errorHandler);
   return app;
