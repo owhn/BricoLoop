@@ -29,6 +29,8 @@ Interface : ouvrir http://localhost:3000 et saisir son numéro d'utilisateur en 
 | US-07 déclarer un retour | panneau « Gérer une demande » → « Outil rendu » |
 | US-08 mes emprunts | panneau « Mes emprunts » |
 | US-10 filtrer par catégorie | liste déroulante au-dessus du catalogue |
+| US-15 signaler abîmé / réparé | fiche outil → « Signaler cet outil abîmé » / « Signaler comme réparé » |
+| US-17 connexion simple | « Se connecter en tant que » en haut à droite |
 
 Requêtes de démo de l'API : [api.http](api.http).
 
@@ -66,7 +68,9 @@ comportement de signalement initial est conservé.
 | US-06 Refuser un chevauchement | #9 | #12 |
 | US-07 Déclarer un retour | aucune : commitée directement sur main, sans branche ni PR (`74bd072`) ; correctifs #13, #15 | #16 |
 | US-08 Mes demandes et emprunts | #8 | #12 |
-| US-15 Signaler un outil abîmé | #14 | #14 |
+| US-10 Filtrer par catégorie | #22 | #22 |
+| US-15 Signaler un outil abîmé (puis réparé) | #14, #18 | #14, #18 |
+| US-17 Connexion simple | #21 | #21 |
 
 Technique : stockage Supabase #2, alignement du schéma #4, revert de la PR #17 (main ne démarrait plus) #19.
 
