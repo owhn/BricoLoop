@@ -24,6 +24,17 @@ export function loansRouter(store) {
     // Règle ajoutée par l'équipe sur la carte Trello (401) : à confirmer par le PO.
     if (startDate < today()) throw new HttpError(401, "startDate: date de début déjà passée");
 
+    // US-06 : refuse une demande qui chevauche un prêt déjà accepté pour cet outil.
+    const loans = await store.loans.list();
+    const overlaps = loans.some(
+      (other) =>
+        other.toolId === tool.id &&
+        other.status === "accepted" &&
+        other.startDate <= endDate &&
+        startDate <= other.endDate,
+    );
+    if (overlaps) throw new HttpError(409, "startDate: l'outil est déjà prêté sur ces dates");
+
     const loan = await store.loans.insert({
       toolId: tool.id,
       borrowerId: user.id,
