@@ -1,6 +1,7 @@
 import { HttpError } from "../errors.js";
 
-export async function reportDamage(store, user, toolId) {
+export async function reportDamage(store, user, toolId, abime = true) {
+  if (typeof abime !== "boolean") throw new HttpError(400, "abime: doit être un booléen (true ou false)");
   const tool = await store.tools.get(toolId);
   if (!tool) throw new HttpError(404, "toolId: outil introuvable");
 
@@ -14,7 +15,7 @@ export async function reportDamage(store, user, toolId) {
     }
   }
 
-  const updated = await store.tools.update(toolId, { abime: true });
+  const updated = await store.tools.update(toolId, { abime });
   if (!updated) throw new HttpError(404, "toolId: outil introuvable");
   return updated;
 }

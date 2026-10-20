@@ -1,5 +1,12 @@
 @baseUrl = http://localhost:3000
 
+### US-15 — l'outil n'est plus abîmé
+PATCH {{baseUrl}}/api/tools/1/abime
+X-User-Id: 1
+Content-Type: application/json
+
+{ "abime": false }
+
 ### US-15 — signaler un outil abîmé (propriétaire ou emprunteur avec prêt accepté)
 PATCH {{baseUrl}}/api/tools/1/abime
 X-User-Id: 1

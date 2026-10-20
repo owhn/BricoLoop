@@ -39,7 +39,7 @@ export function toolsRouter(store) {
   // US-15 : signalement sans modification du statut de disponibilité.
   router.patch("/:id/abime", async (req, res) => {
     const user = requireUser(req);
-    res.json(await reportDamage(store, user, req.params.id));
+    res.json(await reportDamage(store, user, req.params.id, req.body?.abime));
   });
 
   return router;
