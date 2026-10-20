@@ -2,6 +2,16 @@
 
 API de prêt d'outils entre voisins — projet Scrum EPSI B3.
 
+## Équipe / rotation PO-SM
+
+Membres : owhn, rigal34, Courumix, Leo Nuty, bruno
+
+| Sprint | PO |
+|---|---|---|
+| Sprint 0 |Léo|
+| Sprint 1 | Antoine |
+| Sprint 2 | Matéo |
+
 ## Lancement
 
 Prérequis : Node 24 (`nvm use` lit `.nvmrc`) et un projet Supabase.
