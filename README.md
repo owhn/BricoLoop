@@ -2,6 +2,16 @@
 
 API de prêt d'outils entre voisins — projet Scrum EPSI B3.
 
+## Équipe / rotation PO-SM
+
+Membres : owhn, rigal34, Courumix, Leo Nuty, bruno
+
+| Sprint | PO |
+|---|---|
+| Sprint 0 | Léo |
+| Sprint 1 | Antoine |
+| Sprint 2 | Matéo |
+
 ## Lancement
 
 Prérequis : Node 24 (`nvm use` lit `.nvmrc`) et un projet Supabase.
@@ -51,10 +61,6 @@ Pour indiquer que l'outil est réparé, le même endpoint accepte le JSON `{ "ab
 Le bouton de la fiche devient « Signaler comme réparé » lorsque l'outil est abîmé,
 avec les mêmes droits. `{ "abime": true }` signale un dommage ; sans corps, le
 comportement de signalement initial est conservé.
-
-## Équipe / rotation PO-SM
-
-<!-- À compléter -->
 
 ## Stories Done (n° de PR)
 
