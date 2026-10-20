@@ -14,6 +14,7 @@ create table if not exists tools (
   name text not null,
   category text not null check (category in ('Perçage', 'Jardinage', 'Peinture', 'Nettoyage', 'Mesure', 'Autre')),
   description text,
+  abime boolean not null default false,
   status text not null check (status in ('available', 'lent', 'unavailable'))
 );
 

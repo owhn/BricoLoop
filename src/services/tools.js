@@ -23,5 +23,5 @@ export function validateNewTool(body = {}) {
 
 // Un outil créé appartient à l'utilisateur courant et est disponible.
 export function createTool(store, user, body) {
-  return store.tools.insert({ ...validateNewTool(body), ownerId: user.id, status: "available" });
+  return store.tools.insert({ ...validateNewTool(body), ownerId: user.id, status: "available", abime: false });
 }

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { HttpError } from "../errors.js";
 import { requireUser } from "../middleware/currentUser.js";
 import { createTool } from "../services/tools.js";
+import { reportDamage } from "../services/damage.js";
 
 // US-01 : les outils disponibles passent avant les autres.
 const rank = (tool) => (tool.status === "available" ? 0 : 1);
@@ -33,6 +34,12 @@ export function toolsRouter(store) {
       ...tool,
       owner: owner ? { firstName: owner.firstName, district: owner.district } : null,
     });
+  });
+
+  // US-15 : signalement sans modification du statut de disponibilité.
+  router.patch("/:id/abime", async (req, res) => {
+    const user = requireUser(req);
+    res.json(await reportDamage(store, user, req.params.id));
   });
 
   return router;

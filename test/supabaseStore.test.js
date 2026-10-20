@@ -56,6 +56,15 @@ describe("createSupabaseStore — correspondance avec la base (snake_case, ids b
     expect(client.calls).toContainEqual(["update", { start_date: "2026-11-01" }]);
   });
 
+  it("US-15 : conserve le booléen abime en lecture et en écriture", async () => {
+    const client = fakeClient({ data: { ...dbTool, abime: true }, error: null });
+    const store = createSupabaseStore(client);
+
+    expect(await store.tools.update("1", { abime: true })).toEqual({ ...apiTool, abime: true });
+    expect(client.calls).toContainEqual(["update", { abime: true }]);
+    expect((await store.tools.get("1")).abime).toBe(true);
+  });
+
   it("id non numérique (ex. X-User-Id: u1) → null sans interroger la base", async () => {
     const client = fakeClient();
     const store = createSupabaseStore(client);

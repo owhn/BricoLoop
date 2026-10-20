@@ -1,5 +1,12 @@
 @baseUrl = http://localhost:3000
 
+### US-15 — signaler un outil abîmé (propriétaire ou emprunteur avec prêt accepté)
+PATCH {{baseUrl}}/api/tools/1/abime
+X-User-Id: 1
+
+### US-15 — sans utilisateur → 401
+PATCH {{baseUrl}}/api/tools/1/abime
+
 ### US-03 — détail d'un outil et de son propriétaire
 GET {{baseUrl}}/api/tools/1
 

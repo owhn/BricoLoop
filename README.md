@@ -30,6 +30,20 @@ Interface : ouvrir http://localhost:3000 et saisir son numéro d'utilisateur en 
 
 Requêtes de démo de l'API : [api.http](api.http).
 
+## US-15 — signaler un outil abîmé
+
+Sur une base existante, exécuter uniquement `supabase/migrations/20261020_us15_abime.sql`
+dans le SQL Editor Supabase avant de redémarrer le serveur. Cette migration ajoute
+`tools.abime` (booléen non nul, `false` par défaut) sans effacer les données.
+Ne pas relancer le seed pour cette migration.
+
+Dans la fiche d'un outil, le bouton « Signaler cet outil abîmé » enregistre le signalement.
+Il faut renseigner son numéro d'utilisateur : seuls le propriétaire et l'emprunteur
+ayant un prêt accepté peuvent signaler. Les erreurs sont affichées dans la fiche.
+Le signalement ne change pas la disponibilité et ne bloque pas les demandes d'emprunt.
+
+API : `PATCH /api/tools/:id/abime`, avec l'en-tête `X-User-Id`, sans corps.
+
 ## Équipe / rotation PO-SM
 
 <!-- À compléter -->
