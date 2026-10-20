@@ -34,6 +34,8 @@ Règles :
 - Le store est TOUJOURS injecté via createApp, jamais importé en global dans les routes.
 - Interface du store, toute async : store.{users,tools,loans}.{list(), get(id) → objet|null, insert(data) → objet avec id, update(id, patch) → objet|null}.
   Toute évolution de l'interface se fait dans les DEUX stores.
+- Ids : chaînes numériques ("1", "2"…) dans l'API et les deux stores. En base : bigint et colonnes snake_case ;
+  src/supabaseStore.js fait la conversion (snake_case ↔ camelCase, id → chaîne).
 - Chaque test crée son propre store (createStore(fixture) ou createStore() vide). Aucun test ne touche Supabase.
 - Toute erreur métier = throw new HttpError(status, "champ: message"). Pas de res.status(...) dispersé.
 - Format d'erreur unique : { "error": "<champ>: <message>" }.

@@ -8,8 +8,8 @@ Prérequis : Node 24 (`nvm use` lit `.nvmrc`) et un projet Supabase.
 
 Première fois :
 1. Copier `.env.example` en `.env` et renseigner `SUPABASE_URL` et `SUPABASE_SECRET_KEY` (Supabase → Project Settings → API). Ne jamais commiter `.env`.
-2. Dans Supabase → SQL Editor, exécuter [supabase/schema.sql](supabase/schema.sql).
-3. Charger les données de démo : `npm run db:seed`.
+2. Base vide uniquement : dans Supabase → SQL Editor, exécuter [supabase/schema.sql](supabase/schema.sql).
+3. Base vide uniquement : charger les données de démo avec `npm run db:seed`. Attention : il écrase les lignes d'ids 1 à 8.
 
 ```bash
 npm install

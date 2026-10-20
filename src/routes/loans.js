@@ -1,7 +1,38 @@
 import { Router } from "express";
+import { HttpError } from "../errors.js";
+import { requireUser } from "../middleware/currentUser.js";
 
-// Factory (store) => Router. Le paramètre store sera déclaré par la première story qui en a besoin.
-export function loansRouter() {
+// Date du jour au format "AAAA-MM-JJ", comparée comme une chaîne (règle du projet).
+const today = () => new Date().toISOString().slice(0, 10);
+
+export function loansRouter(store) {
   const router = Router();
+
+  // US-04 : demander l'emprunt d'un outil pour des dates précises.
+  router.post("/", async (req, res) => {
+    const user = requireUser(req);
+    const { toolId, startDate, endDate } = req.body ?? {};
+
+    if (!toolId) throw new HttpError(400, "toolId: obligatoire");
+    if (!startDate) throw new HttpError(400, "startDate: obligatoire");
+    if (!endDate) throw new HttpError(400, "endDate: obligatoire");
+
+    const tool = await store.tools.get(String(toolId));
+    if (!tool) throw new HttpError(404, "toolId: outil introuvable");
+    if (tool.ownerId === user.id) throw new HttpError(400, "toolId: impossible d'emprunter son propre outil");
+    if (endDate < startDate) throw new HttpError(400, "endDate: antérieure à la date de début");
+    // Règle ajoutée par l'équipe sur la carte Trello (401) : à confirmer par le PO.
+    if (startDate < today()) throw new HttpError(401, "startDate: date de début déjà passée");
+
+    const loan = await store.loans.insert({
+      toolId: tool.id,
+      borrowerId: user.id,
+      startDate,
+      endDate,
+      status: "pending",
+    });
+    res.status(201).json(loan);
+  });
+
   return router;
 }
