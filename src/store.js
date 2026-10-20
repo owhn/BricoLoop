@@ -2,16 +2,17 @@
 // store.{users,tools,loans}.{list(), get(id), insert(data), update(id, patch)}, toutes async.
 export function createStore(seed = {}) {
   return {
-    users: createCollection("u", seed.users),
-    tools: createCollection("t", seed.tools),
-    loans: createCollection("l", seed.loans),
+    users: createCollection(seed.users),
+    tools: createCollection(seed.tools),
+    loans: createCollection(seed.loans),
   };
 }
 
-function createCollection(prefix, initial = []) {
+// Ids numériques en chaînes ("1", "2"…), comme ceux renvoyés par le store Supabase.
+function createCollection(initial = []) {
   const items = structuredClone(initial);
-  // Évite les collisions d'id avec les données du seed (ex. "t8" → prochain "t9").
-  let counter = Math.max(0, ...items.map(({ id }) => Number(/^\D+(\d+)$/.exec(id)?.[1] ?? 0)));
+  // Évite les collisions d'id avec les données du seed (ex. "8" → prochain "9").
+  let counter = Math.max(0, ...items.map(({ id }) => (/^\d+$/.test(id) ? Number(id) : 0)));
 
   return {
     async list() {
@@ -23,7 +24,7 @@ function createCollection(prefix, initial = []) {
     },
     async insert(data) {
       counter += 1;
-      const item = { ...structuredClone(data), id: `${prefix}${counter}` };
+      const item = { ...structuredClone(data), id: String(counter) };
       items.push(item);
       return structuredClone(item);
     },
