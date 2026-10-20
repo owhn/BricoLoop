@@ -19,6 +19,7 @@ describe("interface (public/)", () => {
     ["US-03 fiche outil", 'id="tool-dialog"'],
     ["US-04 demande d'emprunt", 'id="borrow-form"'],
     ["US-05 répondre à une demande", 'id="respond-form"'],
+    ["US-07 déclarer un retour", 'id="return-button"'],
     ["US-08 mes emprunts", 'id="my-loans"'],
   ])("la page contient l'écran %s", async (_story, marker) => {
     const app = createApp({ store: createStore() });
