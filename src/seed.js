@@ -1,9 +1,9 @@
 export const seed = {
   users: [
-    { id: "1", firstName: "Alice", district: "Centre" },
-    { id: "2", firstName: "Bilal", district: "Gare" },
-    { id: "3", firstName: "Chloé", district: "Port" },
-    { id: "4", firstName: "David", district: "Faubourg" },
+    { id: "1", firstName: "Alice", district: "Centre", role: "admin" },
+    { id: "2", firstName: "Bilal", district: "Gare", role: "user" },
+    { id: "3", firstName: "Chloé", district: "Port", role: "user" },
+    { id: "4", firstName: "David", district: "Faubourg", role: "user" },
   ],
   tools: [
     { id: "1", ownerId: "1", name: "Perceuse à percussion", category: "Perçage", description: "Bosch 750 W, coffret de forets fourni.", status: "available" },

@@ -254,8 +254,8 @@ textarea {
   font: inherit;
 }
 
-.whoami input {
-  width: 4.5em;
+.whoami select {
+  width: auto;
   margin: 0;
 }
 
