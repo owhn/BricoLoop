@@ -12,3 +12,18 @@ describe("GET /health", () => {
     expect(res.body).toEqual({ status: "ok" });
   });
 });
+
+describe("GET /health sans dépendance au store", () => {
+  it("répond 200 même avec X-User-Id quand le store est en panne", async () => {
+    const store = createStore();
+    store.users.get = async () => {
+      throw new Error("base injoignable");
+    };
+    const app = createApp({ store });
+
+    const res = await request(app).get("/health").set("X-User-Id", "u1");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ status: "ok" });
+  });
+});
