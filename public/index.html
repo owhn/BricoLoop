@@ -23,7 +23,13 @@
       <section aria-labelledby="catalogue-title">
         <div class="section-head">
           <h2 id="catalogue-title">Catalogue</h2>
-          <button type="button" class="ghost" id="catalogue-refresh">Actualiser</button>
+          <div class="toolbar">
+            <label class="visually-hidden" for="category-filter">Filtrer par catégorie</label>
+            <select id="category-filter">
+              <option value="">Toutes les catégories</option>
+            </select>
+            <button type="button" class="ghost" id="catalogue-refresh">Actualiser</button>
+          </div>
         </div>
         <p id="catalogue-status" class="muted" role="status">Chargement…</p>
         <ul id="catalogue" class="tools"></ul>

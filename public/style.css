@@ -396,3 +396,26 @@ dialog .tool__description {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar select {
+  width: auto;
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

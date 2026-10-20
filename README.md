@@ -28,6 +28,7 @@ Interface : ouvrir http://localhost:3000 et saisir son numéro d'utilisateur en 
 | US-05 accepter / refuser | panneau « Gérer une demande » (propriétaire, avec le n° de demande) |
 | US-07 déclarer un retour | panneau « Gérer une demande » → « Outil rendu » |
 | US-08 mes emprunts | panneau « Mes emprunts » |
+| US-10 filtrer par catégorie | liste déroulante au-dessus du catalogue |
 
 Requêtes de démo de l'API : [api.http](api.http).
 
