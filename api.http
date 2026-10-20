@@ -3,9 +3,12 @@
 ### Santé de l'API
 GET {{baseUrl}}/health
 
+### US-01 Catalogue des outils (disponibles en premier)
+GET {{baseUrl}}/api/tools
+
 ### US-02 — prêter un outil
 POST {{baseUrl}}/api/tools
-X-User-Id: u1
+X-User-Id: 1
 Content-Type: application/json
 
 {
@@ -16,7 +19,7 @@ Content-Type: application/json
 
 ### US-02 — sans description
 POST {{baseUrl}}/api/tools
-X-User-Id: u2
+X-User-Id: 2
 Content-Type: application/json
 
 {
@@ -26,7 +29,7 @@ Content-Type: application/json
 
 ### US-02 — erreur : nom trop court → 400 name
 POST {{baseUrl}}/api/tools
-X-User-Id: u1
+X-User-Id: 1
 Content-Type: application/json
 
 {
@@ -36,7 +39,7 @@ Content-Type: application/json
 
 ### US-02 — erreur : catégorie hors liste → 400 category
 POST {{baseUrl}}/api/tools
-X-User-Id: u1
+X-User-Id: 1
 Content-Type: application/json
 
 {
