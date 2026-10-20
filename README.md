@@ -17,7 +17,16 @@ npm start        # http://localhost:3000 — utilise Supabase
 npm run check    # lint (0 warning) + tests (store en mémoire, sans Supabase)
 ```
 
-Interface : ouvrir http://localhost:3000. Catalogue (US-01) et formulaire « Prêter un outil » (US-02) ; saisir son numéro d'utilisateur en haut à droite.
+Interface : ouvrir http://localhost:3000 et saisir son numéro d'utilisateur en haut à droite.
+
+| Story | Où dans l'interface |
+|---|---|
+| US-01 catalogue | liste des outils, disponibles en premier |
+| US-02 prêter un outil | panneau « Prêter un outil » |
+| US-03 fiche outil | clic sur un outil |
+| US-04 / US-06 demander un emprunt | fiche outil → « Demander à l'emprunter » |
+| US-05 accepter / refuser | panneau « Répondre à une demande » (propriétaire, avec le n° de demande) |
+| US-08 mes emprunts | panneau « Mes emprunts » |
 
 Requêtes de démo de l'API : [api.http](api.http).
 

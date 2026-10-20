@@ -21,40 +21,96 @@
 
     <main>
       <section aria-labelledby="catalogue-title">
-        <h2 id="catalogue-title">Catalogue</h2>
+        <div class="section-head">
+          <h2 id="catalogue-title">Catalogue</h2>
+          <button type="button" class="ghost" id="catalogue-refresh">Actualiser</button>
+        </div>
         <p id="catalogue-status" class="muted" role="status">Chargement…</p>
         <ul id="catalogue" class="tools"></ul>
+        <p class="hint">Clique sur un outil pour voir sa fiche et demander à l'emprunter.</p>
       </section>
 
-      <section aria-labelledby="lend-title" class="panel">
-        <h2 id="lend-title">Prêter un outil</h2>
-        <form id="lend-form" novalidate>
-          <label for="name">Nom</label>
-          <input id="name" name="name" type="text" maxlength="60" required />
-          <p class="hint">2 à 60 caractères</p>
-          <p class="field-error" data-error-for="name"></p>
+      <aside class="side">
+        <section aria-labelledby="lend-title" class="panel">
+          <h2 id="lend-title">Prêter un outil</h2>
+          <form id="lend-form" novalidate>
+            <label for="name">Nom</label>
+            <input id="name" name="name" type="text" maxlength="60" required />
+            <p class="hint">2 à 60 caractères</p>
+            <p class="field-error" data-error-for="name"></p>
 
-          <label for="category">Catégorie</label>
-          <select id="category" name="category" required>
-            <option value="">— Choisir —</option>
-            <option>Perçage</option>
-            <option>Jardinage</option>
-            <option>Peinture</option>
-            <option>Nettoyage</option>
-            <option>Mesure</option>
-            <option>Autre</option>
-          </select>
-          <p class="field-error" data-error-for="category"></p>
+            <label for="category">Catégorie</label>
+            <select id="category" name="category" required>
+              <option value="">— Choisir —</option>
+              <option>Perçage</option>
+              <option>Jardinage</option>
+              <option>Peinture</option>
+              <option>Nettoyage</option>
+              <option>Mesure</option>
+              <option>Autre</option>
+            </select>
+            <p class="field-error" data-error-for="category"></p>
 
-          <label for="description">Description <span class="muted">(facultative)</span></label>
-          <textarea id="description" name="description" rows="3" maxlength="300"></textarea>
-          <p class="hint"><span id="description-count">0</span> / 300</p>
-          <p class="field-error" data-error-for="description"></p>
+            <label for="description">Description <span class="muted">(facultative)</span></label>
+            <textarea id="description" name="description" rows="3" maxlength="300"></textarea>
+            <p class="hint"><span id="description-count">0</span> / 300</p>
+            <p class="field-error" data-error-for="description"></p>
 
-          <button type="submit">Prêter cet outil</button>
-          <p id="form-message" role="status"></p>
-        </form>
-      </section>
+            <button type="submit">Prêter cet outil</button>
+            <p class="form-message" role="status"></p>
+          </form>
+        </section>
+
+        <section aria-labelledby="my-loans-title" class="panel">
+          <div class="section-head">
+            <h2 id="my-loans-title">Mes emprunts</h2>
+            <button type="button" class="ghost" id="my-loans-refresh">Actualiser</button>
+          </div>
+          <p id="my-loans-status" class="muted" role="status"></p>
+          <ul id="my-loans" class="loans"></ul>
+        </section>
+
+        <section aria-labelledby="respond-title" class="panel">
+          <h2 id="respond-title">Répondre à une demande</h2>
+          <p class="hint">Réservé au propriétaire de l'outil. Le n° de demande est affiché à l'emprunteur.</p>
+          <form id="respond-form" novalidate>
+            <label for="loan-id">N° de demande</label>
+            <input id="loan-id" name="loanId" type="text" inputmode="numeric" required />
+            <p class="field-error" data-error-for="loan"></p>
+            <div class="actions">
+              <button type="submit" name="status" value="accepted">Accepter</button>
+              <button type="submit" name="status" value="refused" class="secondary">Refuser</button>
+            </div>
+            <p class="form-message" role="status"></p>
+          </form>
+        </section>
+      </aside>
     </main>
+
+    <dialog id="tool-dialog" aria-labelledby="tool-dialog-title">
+      <button type="button" class="close" id="tool-dialog-close" aria-label="Fermer">×</button>
+      <h2 id="tool-dialog-title"></h2>
+      <p class="tool__meta" id="tool-dialog-meta"></p>
+      <p id="tool-dialog-description" class="tool__description"></p>
+      <p id="tool-dialog-owner" class="owner"></p>
+
+      <form id="borrow-form" novalidate>
+        <h3>Demander à l'emprunter</h3>
+        <div class="dates">
+          <div>
+            <label for="start-date">Du</label>
+            <input id="start-date" name="startDate" type="date" required />
+          </div>
+          <div>
+            <label for="end-date">Au</label>
+            <input id="end-date" name="endDate" type="date" required />
+          </div>
+        </div>
+        <p class="field-error" data-error-for="startDate"></p>
+        <p class="field-error" data-error-for="endDate"></p>
+        <button type="submit">Envoyer la demande</button>
+        <p class="form-message" role="status"></p>
+      </form>
+    </dialog>
   </body>
 </html>
