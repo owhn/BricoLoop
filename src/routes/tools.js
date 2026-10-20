@@ -1,7 +1,16 @@
 import { Router } from "express";
 
-// Factory (store) => Router. Le paramètre store sera déclaré par la première story qui en a besoin.
-export function toolsRouter() {
+// US-01 : les outils disponibles passent avant les autres.
+const rank = (tool) => (tool.status === "available" ? 0 : 1);
+
+export function toolsRouter(store) {
   const router = Router();
+
+  // US-01 : catalogue des outils, disponibles en premier.
+  router.get("/", (_req, res) => {
+    const tools = [...store.tools].sort((a, b) => rank(a) - rank(b));
+    res.json(tools);
+  });
+
   return router;
 }
