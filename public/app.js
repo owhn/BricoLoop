@@ -1,15 +1,26 @@
 import { parseApiError } from "./apiError.js";
 
-const STATUS_LABELS = { available: "Disponible", lent: "Prêté", unavailable: "Indisponible" };
+const TOOL_STATUS = { available: "Disponible", lent: "Prêté", unavailable: "Indisponible" };
+const LOAN_STATUS = { pending: "En attente", accepted: "Acceptée", refused: "Refusée", returned: "Rendue" };
 const USER_KEY = "bricoloop.userId";
 
-const userInput = document.querySelector("#user-id");
-const catalogue = document.querySelector("#catalogue");
-const catalogueStatus = document.querySelector("#catalogue-status");
-const form = document.querySelector("#lend-form");
-const formMessage = document.querySelector("#form-message");
-const description = document.querySelector("#description");
-const descriptionCount = document.querySelector("#description-count");
+const $ = (selector) => document.querySelector(selector);
+
+const userInput = $("#user-id");
+const catalogue = $("#catalogue");
+const catalogueStatus = $("#catalogue-status");
+const lendForm = $("#lend-form");
+const description = $("#description");
+const descriptionCount = $("#description-count");
+const myLoans = $("#my-loans");
+const myLoansStatus = $("#my-loans-status");
+const respondForm = $("#respond-form");
+const dialog = $("#tool-dialog");
+const borrowForm = $("#borrow-form");
+
+// Noms des outils, pour afficher « Mes emprunts » sans refaire une requête par ligne.
+let toolNames = new Map();
+let currentToolId = null;
 
 // localStorage peut être indisponible (navigation privée) : l'identifiant n'est alors pas mémorisé.
 function loadUserId() {
@@ -28,108 +39,220 @@ function saveUserId(id) {
   }
 }
 
-// US-01 : catalogue, déjà trié par l'API (disponibles en premier).
-async function loadCatalogue() {
-  catalogueStatus.textContent = "Chargement…";
-  try {
-    const res = await fetch("/api/tools");
-    if (!res.ok) throw new Error(parseApiError(await res.json()).message);
-    renderCatalogue(await res.json());
-  } catch (err) {
-    catalogue.replaceChildren();
-    catalogueStatus.textContent = `Impossible de charger le catalogue : ${err.message}`;
-  }
+// Appel à l'API avec X-User-Id ; renvoie { ok, status, data } sans lever d'exception HTTP.
+async function api(method, url, body) {
+  const headers = {};
+  const userId = userInput.value.trim();
+  if (userId) headers["X-User-Id"] = userId;
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+
+  const res = await fetch(url, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  const data = await res.json().catch(() => null);
+  return { ok: res.ok, status: res.status, data };
 }
 
-function renderCatalogue(tools) {
-  catalogueStatus.textContent = tools.length === 0 ? "Aucun outil pour l'instant." : `${tools.length} outil(s)`;
-  catalogue.replaceChildren(...tools.map(renderTool));
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
 }
 
-function renderTool(tool) {
-  const item = document.createElement("li");
-  item.className = `tool tool--${tool.status}`;
-
-  const title = document.createElement("h3");
-  title.textContent = tool.name;
-
-  const meta = document.createElement("p");
-  meta.className = "tool__meta";
-  const category = document.createElement("span");
-  category.className = "chip";
-  category.textContent = tool.category;
-  const status = document.createElement("span");
-  status.className = `status status--${tool.status}`;
-  status.textContent = STATUS_LABELS[tool.status] ?? tool.status;
-  meta.append(category, status);
-
-  item.append(title, meta);
-  if (tool.description) {
-    const text = document.createElement("p");
-    text.className = "tool__description";
-    text.textContent = tool.description;
-    item.append(text);
-  }
-  return item;
+function badge(status, labels) {
+  return el("span", `status status--${status}`, labels[status] ?? status);
 }
 
-function clearErrors() {
-  form.querySelectorAll("[data-error-for]").forEach((el) => (el.textContent = ""));
-  form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+// Les erreurs de l'API ont la forme "<champ>: <message>" : on les place sous le champ concerné.
+function resetForm(form) {
+  form.querySelectorAll("[data-error-for]").forEach((slot) => (slot.textContent = ""));
+  form.querySelectorAll("[aria-invalid]").forEach((field) => field.removeAttribute("aria-invalid"));
   userInput.removeAttribute("aria-invalid");
-  formMessage.textContent = "";
-  formMessage.className = "";
+  setMessage(form, "", "");
 }
 
-function showError(field, message) {
+function setMessage(form, text, kind) {
+  const message = form.querySelector(".form-message");
+  message.textContent = text;
+  message.className = `form-message ${kind}`;
+}
+
+function showApiError(form, data) {
+  const { field, message } = parseApiError(data);
+  if (field === "X-User-Id") {
+    userInput.setAttribute("aria-invalid", "true");
+    userInput.focus();
+    setMessage(form, "Indique d'abord ton numéro d'utilisateur (en haut à droite).", "error");
+    return;
+  }
   const slot = form.querySelector(`[data-error-for="${field}"]`);
   if (slot) {
     slot.textContent = message;
     form.elements[field]?.setAttribute("aria-invalid", "true");
     return;
   }
-  if (field === "X-User-Id") userInput.setAttribute("aria-invalid", "true");
-  formMessage.textContent = message;
-  formMessage.className = "error";
+  setMessage(form, message, "error");
 }
 
-// US-02 : prêter un outil. La validation est faite par l'API, on affiche ses erreurs sous le bon champ.
-async function lendTool(event) {
-  event.preventDefault();
-  clearErrors();
-
-  const data = new FormData(form);
-  const body = { name: data.get("name"), category: data.get("category") };
-  if (data.get("description")) body.description = data.get("description");
-
-  const headers = { "Content-Type": "application/json" };
-  const userId = userInput.value.trim();
-  if (userId) headers["X-User-Id"] = userId;
-
-  const button = form.querySelector("button");
-  button.disabled = true;
+async function submitWith(form, action) {
+  resetForm(form);
+  const buttons = form.querySelectorAll("button");
+  buttons.forEach((b) => (b.disabled = true));
   try {
-    const res = await fetch("/api/tools", { method: "POST", headers, body: JSON.stringify(body) });
-    if (res.status === 201) {
-      const tool = await res.json();
-      form.reset();
-      descriptionCount.textContent = "0";
-      formMessage.textContent = `« ${tool.name} » est maintenant proposé au prêt.`;
-      formMessage.className = "success";
-      await loadCatalogue();
-      return;
-    }
-    const { field, message } = parseApiError(await res.json());
-    showError(field, field === "X-User-Id" ? "Indique d'abord ton numéro d'utilisateur (en haut à droite)." : message);
+    await action();
   } catch (err) {
-    showError(null, `Erreur réseau : ${err.message}`);
+    setMessage(form, `Erreur réseau : ${err.message}`, "error");
   } finally {
-    button.disabled = false;
+    buttons.forEach((b) => (b.disabled = false));
   }
 }
 
+// US-01 : catalogue, déjà trié par l'API (disponibles en premier).
+async function loadCatalogue() {
+  catalogueStatus.textContent = "Chargement…";
+  try {
+    const { ok, data } = await api("GET", "/api/tools");
+    if (!ok) throw new Error(parseApiError(data).message);
+    toolNames = new Map(data.map((tool) => [tool.id, tool.name]));
+    catalogueStatus.textContent = data.length === 0 ? "Aucun outil pour l'instant." : `${data.length} outil(s)`;
+    catalogue.replaceChildren(...data.map(renderTool));
+  } catch (err) {
+    catalogue.replaceChildren();
+    catalogueStatus.textContent = `Impossible de charger le catalogue : ${err.message}`;
+  }
+}
+
+function renderTool(tool) {
+  const item = el("li");
+  const card = el("button", `tool tool--${tool.status}`);
+  card.type = "button";
+  card.addEventListener("click", () => openTool(tool.id));
+
+  const meta = el("span", "tool__meta");
+  meta.append(el("span", "chip", tool.category), badge(tool.status, TOOL_STATUS));
+  card.append(el("span", "tool__name", tool.name), meta);
+  if (tool.description) card.append(el("span", "tool__description", tool.description));
+
+  item.append(card);
+  return item;
+}
+
+// US-03 : fiche de l'outil et propriétaire ; US-04 : formulaire de demande d'emprunt.
+async function openTool(id) {
+  currentToolId = id;
+  resetForm(borrowForm);
+  borrowForm.reset();
+  $("#tool-dialog-title").textContent = "Chargement…";
+  $("#tool-dialog-meta").replaceChildren();
+  $("#tool-dialog-description").textContent = "";
+  $("#tool-dialog-owner").textContent = "";
+  dialog.showModal();
+
+  try {
+    const { ok, data } = await api("GET", `/api/tools/${encodeURIComponent(id)}`);
+    if (!ok) {
+      $("#tool-dialog-title").textContent = parseApiError(data).message;
+      return;
+    }
+    $("#tool-dialog-title").textContent = data.name;
+    $("#tool-dialog-meta").replaceChildren(el("span", "chip", data.category), badge(data.status, TOOL_STATUS));
+    $("#tool-dialog-description").textContent = data.description ?? "Pas de description.";
+    $("#tool-dialog-owner").textContent = data.owner
+      ? `Prêté par ${data.owner.firstName}, quartier ${data.owner.district}`
+      : "Propriétaire inconnu";
+  } catch (err) {
+    $("#tool-dialog-title").textContent = `Erreur réseau : ${err.message}`;
+  }
+}
+
+async function borrowTool(event) {
+  event.preventDefault();
+  await submitWith(borrowForm, async () => {
+    const data = new FormData(borrowForm);
+    const res = await api("POST", "/api/loans", {
+      toolId: currentToolId,
+      startDate: data.get("startDate"),
+      endDate: data.get("endDate"),
+    });
+    if (!res.ok) return showApiError(borrowForm, res.data);
+    setMessage(borrowForm, `Demande n°${res.data.id} envoyée, en attente de réponse du propriétaire.`, "success");
+    await loadMyLoans();
+  });
+}
+
+// US-02 : prêter un outil.
+async function lendTool(event) {
+  event.preventDefault();
+  await submitWith(lendForm, async () => {
+    const data = new FormData(lendForm);
+    const body = { name: data.get("name"), category: data.get("category") };
+    if (data.get("description")) body.description = data.get("description");
+
+    const res = await api("POST", "/api/tools", body);
+    if (!res.ok) return showApiError(lendForm, res.data);
+    lendForm.reset();
+    descriptionCount.textContent = "0";
+    setMessage(lendForm, `« ${res.data.name} » est maintenant proposé au prêt.`, "success");
+    await loadCatalogue();
+  });
+}
+
+// US-08 : mes demandes et mes emprunts, triés par l'API.
+async function loadMyLoans() {
+  myLoans.replaceChildren();
+  if (!userInput.value.trim()) {
+    myLoansStatus.textContent = "Indique ton numéro d'utilisateur pour voir tes emprunts.";
+    return;
+  }
+  myLoansStatus.textContent = "Chargement…";
+  try {
+    const { ok, data } = await api("GET", "/api/me/loans");
+    if (!ok) {
+      myLoansStatus.textContent = parseApiError(data).message;
+      return;
+    }
+    myLoansStatus.textContent = data.length === 0 ? "Aucune demande pour l'instant." : "";
+    myLoans.replaceChildren(...data.map(renderLoan));
+  } catch (err) {
+    myLoansStatus.textContent = `Erreur réseau : ${err.message}`;
+  }
+}
+
+function renderLoan(loan) {
+  const item = el("li", "loan");
+  const head = el("div", "loan__head");
+  head.append(el("strong", "", toolNames.get(loan.toolId) ?? `Outil n°${loan.toolId}`), badge(loan.status, LOAN_STATUS));
+  item.append(head, el("span", "muted", `Du ${loan.startDate} au ${loan.endDate} · demande n°${loan.id}`));
+  return item;
+}
+
+// US-05 : le propriétaire accepte ou refuse une demande.
+async function respond(event) {
+  event.preventDefault();
+  const status = event.submitter?.value;
+  await submitWith(respondForm, async () => {
+    const loanId = new FormData(respondForm).get("loanId").trim();
+    if (!loanId) return showApiError(respondForm, { error: "loan: indique le n° de la demande" });
+
+    const res = await api("PATCH", `/api/loans/${encodeURIComponent(loanId)}`, { status });
+    if (!res.ok) return showApiError(respondForm, res.data);
+    setMessage(respondForm, `Demande n°${res.data.id} : ${LOAN_STATUS[res.data.status].toLowerCase()}.`, "success");
+    await Promise.all([loadCatalogue(), loadMyLoans()]);
+  });
+}
+
 userInput.value = loadUserId();
-userInput.addEventListener("change", () => saveUserId(userInput.value.trim()));
+userInput.addEventListener("change", () => {
+  userInput.removeAttribute("aria-invalid");
+  saveUserId(userInput.value.trim());
+  loadMyLoans();
+});
 description.addEventListener("input", () => (descriptionCount.textContent = String(description.value.length)));
-form.addEventListener("submit", lendTool);
-loadCatalogue();
+lendForm.addEventListener("submit", lendTool);
+borrowForm.addEventListener("submit", borrowTool);
+respondForm.addEventListener("submit", respond);
+$("#catalogue-refresh").addEventListener("click", loadCatalogue);
+$("#my-loans-refresh").addEventListener("click", loadMyLoans);
+$("#tool-dialog-close").addEventListener("click", () => dialog.close());
+
+await loadCatalogue();
+await loadMyLoans();

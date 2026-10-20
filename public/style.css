@@ -13,6 +13,7 @@
   --off: #57534e;
   --off-bg: #e7e5e4;
   --danger: #b91c1c;
+  --danger-bg: #fee2e2;
   color-scheme: light;
 }
 
@@ -32,6 +33,7 @@
     --off: #d6d3d1;
     --off-bg: #44403c;
     --danger: #fca5a5;
+    --danger-bg: #7f1d1d;
     color-scheme: dark;
   }
 }
@@ -95,25 +97,53 @@ main {
   }
 }
 
+.side {
+  display: grid;
+  gap: 20px;
+}
+
 h2 {
   margin: 0 0 12px;
   font-size: 1.25rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .tools {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
-  margin: 12px 0 0;
+  margin: 12px 0;
   padding: 0;
   list-style: none;
 }
 
 .tool {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
   padding: 14px 16px;
+  color: inherit;
+  text-align: left;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.tool:hover,
+.tool:focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
 .tool--lent,
@@ -121,9 +151,9 @@ h2 {
   opacity: 0.75;
 }
 
-.tool h3 {
-  margin: 0 0 8px;
+.tool__name {
   font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .tool__meta {
@@ -134,7 +164,7 @@ h2 {
 }
 
 .tool__description {
-  margin: 8px 0 0;
+  margin: 0;
   color: var(--muted);
   font-size: 0.95rem;
 }
@@ -144,34 +174,65 @@ h2 {
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .chip {
   border: 1px solid var(--border);
 }
 
-.status--available {
+.status--available,
+.status--accepted {
   color: var(--ok);
   background: var(--ok-bg);
 }
 
-.status--lent {
+.status--lent,
+.status--pending {
   color: var(--warn);
   background: var(--warn-bg);
 }
 
-.status--unavailable {
+.status--unavailable,
+.status--returned {
   color: var(--off);
   background: var(--off-bg);
 }
 
+.status--refused {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
 .panel {
-  position: sticky;
-  top: 16px;
   padding: 20px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
+}
+
+.loans {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.loan {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.loan__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 form label {
@@ -213,32 +274,125 @@ textarea {
   font-size: 0.9rem;
 }
 
-button {
+.field-error:empty {
+  display: none;
+}
+
+form button {
   width: 100%;
   margin-top: 20px;
   padding: 10px;
   color: var(--accent-text);
   background: var(--accent);
-  border: 0;
+  border: 1px solid var(--accent);
   border-radius: 8px;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
-button:disabled {
+form button.secondary {
+  color: var(--text);
+  background: transparent;
+  border-color: var(--border);
+}
+
+form button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
 
-#form-message {
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ghost {
+  padding: 4px 10px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.ghost:hover {
+  color: var(--text);
+}
+
+.form-message {
   margin: 12px 0 0;
 }
 
-#form-message.success {
+.form-message:empty {
+  display: none;
+}
+
+.form-message.success {
   color: var(--ok);
 }
 
-#form-message.error {
+.form-message.error {
   color: var(--danger);
+}
+
+dialog {
+  width: min(480px, calc(100vw - 32px));
+  padding: 24px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+dialog h2 {
+  margin-right: 32px;
+}
+
+dialog h3 {
+  margin: 20px 0 0;
+  padding-top: 16px;
+  font-size: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+dialog .tool__description {
+  margin-top: 12px;
+}
+
+.owner {
+  margin: 12px 0 0;
+  font-weight: 600;
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
