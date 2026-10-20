@@ -15,6 +15,19 @@ describe("interface (public/)", () => {
     expect(res.text).toContain('id="lend-form"');
   });
 
+  it.each([
+    ["US-03 fiche outil", 'id="tool-dialog"'],
+    ["US-04 demande d'emprunt", 'id="borrow-form"'],
+    ["US-05 répondre à une demande", 'id="respond-form"'],
+    ["US-08 mes emprunts", 'id="my-loans"'],
+  ])("la page contient l'écran %s", async (_story, marker) => {
+    const app = createApp({ store: createStore() });
+
+    const res = await request(app).get("/");
+
+    expect(res.text).toContain(marker);
+  });
+
   it("le formulaire propose exactement les catégories de l'API", async () => {
     const app = createApp({ store: createStore() });
 
