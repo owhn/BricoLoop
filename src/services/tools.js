@@ -25,3 +25,12 @@ export function validateNewTool(body = {}) {
 export function createTool(store, user, body) {
   return store.tools.insert({ ...validateNewTool(body), ownerId: user.id, status: "available", abime: false });
 }
+
+// US-10 : filtre du catalogue. Absent → pas de filtre ; sinon catégorie exacte de la liste.
+export function parseCategoryFilter(query = {}) {
+  if (!("category" in query)) return null;
+  if (!CATEGORIES.includes(query.category)) {
+    throw new HttpError(400, `category: doit être parmi ${CATEGORIES.join(", ")}`);
+  }
+  return query.category;
+}
