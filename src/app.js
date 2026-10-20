@@ -11,11 +11,13 @@ export function createApp({ store }) {
 
   app.use(express.json());
   app.use(express.static(path.join(import.meta.dirname, "..", "public")));
-  app.use(currentUser(store));
 
+  // Avant currentUser : /health ne doit pas dépendre de la base.
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+
+  app.use(currentUser(store));
 
   app.use("/api/tools", toolsRouter(store));
   app.use("/api/loans", loansRouter(store));

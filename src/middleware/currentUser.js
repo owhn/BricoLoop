@@ -2,9 +2,9 @@ import { HttpError } from "../errors.js";
 
 // X-User-Id absent ou inconnu → req.user = null (pas d'erreur ici).
 export function currentUser(store) {
-  return (req, _res, next) => {
+  return async (req, _res, next) => {
     const id = req.get("X-User-Id");
-    req.user = (id && store.users.find((u) => u.id === id)) || null;
+    req.user = id ? await store.users.get(id) : null;
     next();
   };
 }
