@@ -6,6 +6,10 @@ GET {{baseUrl}}/health
 ### US-01 Catalogue des outils (disponibles en premier)
 GET {{baseUrl}}/api/tools
 
+### US-08 Voir mes demandes et mes emprunts (Alice, voisine 1, après la requête US-04)
+GET {{baseUrl}}/api/me/loans
+X-User-Id: 1
+
 ### US-04 Demander l'emprunt d'un outil (Alice, voisine 1, demande la tondeuse 3)
 POST {{baseUrl}}/api/loans
 Content-Type: application/json
