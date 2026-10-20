@@ -86,6 +86,10 @@ Content-Type: application/json
   "category": "Perçage"
 }
 
+### US-12 Mes outils et le nombre de demandes en attente (Bilal, voisin 2)
+GET {{baseUrl}}/api/me/tools
+X-User-Id: 2
+
 ### US-06 Demande qui chevauche un prêt accepté → 409 (après avoir accepté la demande US-04 avec US-05)
 POST {{baseUrl}}/api/loans
 Content-Type: application/json

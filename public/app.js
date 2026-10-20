@@ -15,6 +15,8 @@ const description = $("#description");
 const descriptionCount = $("#description-count");
 const myLoans = $("#my-loans");
 const myLoansStatus = $("#my-loans-status");
+const myTools = $("#my-tools");
+const myToolsStatus = $("#my-tools-status");
 const respondForm = $("#respond-form");
 const dialog = $("#tool-dialog");
 const borrowForm = $("#borrow-form");
@@ -226,7 +228,7 @@ async function lendTool(event) {
     lendForm.reset();
     descriptionCount.textContent = "0";
     setMessage(lendForm, `« ${res.data.name} » est maintenant proposé au prêt.`, "success");
-    await loadCatalogue();
+    await Promise.all([loadCatalogue(), loadMyTools()]);
   });
 }
 
@@ -259,6 +261,39 @@ function renderLoan(loan) {
   return item;
 }
 
+// US-12 : mes outils et, pour chacun, le nombre de demandes en attente.
+async function loadMyTools() {
+  myTools.replaceChildren();
+  if (!userInput.value.trim()) {
+    myToolsStatus.textContent = "Indique qui tu es (en haut à droite) pour voir tes outils.";
+    return;
+  }
+  myToolsStatus.textContent = "Chargement…";
+  try {
+    const { ok, data } = await api("GET", "/api/me/tools");
+    if (!ok) {
+      myToolsStatus.textContent = parseApiError(data).message;
+      return;
+    }
+    myToolsStatus.textContent = data.length === 0 ? "Tu ne prêtes aucun outil pour l'instant." : "";
+    myTools.replaceChildren(...data.map(renderMyTool));
+  } catch (err) {
+    myToolsStatus.textContent = `Erreur réseau : ${err.message}`;
+  }
+}
+
+function renderMyTool(tool) {
+  const item = el("li", "loan");
+  const head = el("div", "loan__head");
+  head.append(el("strong", "", tool.name), badge(tool.status, TOOL_STATUS));
+  const pending =
+    tool.pendingCount === 0
+      ? "Aucune demande en attente"
+      : `${tool.pendingCount} demande(s) en attente : n°${tool.pendingLoanIds.join(", n°")}`;
+  item.append(head, el("span", "muted", pending));
+  return item;
+}
+
 // US-05 : le propriétaire accepte ou refuse une demande ; US-07 : il déclare l'outil rendu.
 async function respond(event) {
   event.preventDefault();
@@ -274,7 +309,7 @@ async function respond(event) {
         : await api("PATCH", `/api/loans/${id}`, { status });
     if (!res.ok) return showApiError(respondForm, res.data);
     setMessage(respondForm, `Demande n°${res.data.id} : ${LOAN_STATUS[res.data.status].toLowerCase()}.`, "success");
-    await Promise.all([loadCatalogue(), loadMyLoans()]);
+    await Promise.all([loadCatalogue(), loadMyLoans(), loadMyTools()]);
   });
 }
 
@@ -326,8 +361,11 @@ $("#catalogue-refresh").addEventListener("click", loadCatalogue);
 categoryFilter.append(...[...$("#category").options].filter((o) => o.value).map((o) => new Option(o.text, o.value)));
 categoryFilter.addEventListener("change", loadCatalogue);
 $("#my-loans-refresh").addEventListener("click", loadMyLoans);
+$("#my-tools-refresh").addEventListener("click", loadMyTools);
+userInput.addEventListener("change", loadMyTools);
 $("#tool-dialog-close").addEventListener("click", () => dialog.close());
 
 await showConnected();
 await loadCatalogue();
 await loadMyLoans();
+await loadMyTools();
