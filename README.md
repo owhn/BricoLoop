@@ -25,7 +25,8 @@ Interface : ouvrir http://localhost:3000 et saisir son numéro d'utilisateur en 
 | US-02 prêter un outil | panneau « Prêter un outil » |
 | US-03 fiche outil | clic sur un outil |
 | US-04 / US-06 demander un emprunt | fiche outil → « Demander à l'emprunter » |
-| US-05 accepter / refuser | panneau « Répondre à une demande » (propriétaire, avec le n° de demande) |
+| US-05 accepter / refuser | panneau « Gérer une demande » (propriétaire, avec le n° de demande) |
+| US-07 déclarer un retour | panneau « Gérer une demande » → « Outil rendu » |
 | US-08 mes emprunts | panneau « Mes emprunts » |
 
 Requêtes de démo de l'API : [api.http](api.http).
