@@ -25,7 +25,7 @@ export function createApp({ store }) {
   app.use("/api/loans", loansRouter(store));
   app.use("/api/me", meRouter(store));
   app.use("/api/returns", returnsRouter(store));
-  app.use("/api/tool-actions", toolActionsRouter(store));
+  app.use("/api/tools-actions", toolsActionsRouter(store));
 
   app.use(errorHandler);
   return app;
