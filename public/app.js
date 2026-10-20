@@ -246,7 +246,7 @@ function renderLoan(loan) {
   return item;
 }
 
-// US-05 : le propriétaire accepte ou refuse une demande.
+// US-05 : le propriétaire accepte ou refuse une demande ; US-07 : il déclare l'outil rendu.
 async function respond(event) {
   event.preventDefault();
   const status = event.submitter?.value;
@@ -254,7 +254,11 @@ async function respond(event) {
     const loanId = new FormData(respondForm).get("loanId").trim();
     if (!loanId) return showApiError(respondForm, { error: "loan: indique le n° de la demande" });
 
-    const res = await api("PATCH", `/api/loans/${encodeURIComponent(loanId)}`, { status });
+    const id = encodeURIComponent(loanId);
+    const res =
+      status === "returned"
+        ? await api("PATCH", `/api/returns/${id}/return`)
+        : await api("PATCH", `/api/loans/${id}`, { status });
     if (!res.ok) return showApiError(respondForm, res.data);
     setMessage(respondForm, `Demande n°${res.data.id} : ${LOAN_STATUS[res.data.status].toLowerCase()}.`, "success");
     await Promise.all([loadCatalogue(), loadMyLoans()]);
