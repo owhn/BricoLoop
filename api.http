@@ -26,6 +26,12 @@ GET {{baseUrl}}/health
 ### US-01 Catalogue des outils (disponibles en premier)
 GET {{baseUrl}}/api/tools
 
+### US-10 Filtrer par catégorie
+GET {{baseUrl}}/api/tools?category=Jardinage
+
+### US-10 erreur : catégorie inconnue → 400 category
+GET {{baseUrl}}/api/tools?category=Cuisine
+
 ### US-08 Voir mes demandes et mes emprunts (Alice, voisine 1, après la requête US-04)
 GET {{baseUrl}}/api/me/loans
 X-User-Id: 1

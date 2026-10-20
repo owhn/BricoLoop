@@ -9,6 +9,7 @@ const $ = (selector) => document.querySelector(selector);
 const userInput = $("#user-id");
 const catalogue = $("#catalogue");
 const catalogueStatus = $("#catalogue-status");
+const categoryFilter = $("#category-filter");
 const lendForm = $("#lend-form");
 const description = $("#description");
 const descriptionCount = $("#description-count");
@@ -108,14 +109,18 @@ async function submitWith(form, action) {
   }
 }
 
-// US-01 : catalogue, déjà trié par l'API (disponibles en premier).
+// US-01 : catalogue, déjà trié par l'API (disponibles en premier) ; US-10 : filtre par catégorie.
 async function loadCatalogue() {
   catalogueStatus.textContent = "Chargement…";
+  const category = categoryFilter.value;
   try {
-    const { ok, data } = await api("GET", "/api/tools");
+    const url = category ? `/api/tools?category=${encodeURIComponent(category)}` : "/api/tools";
+    const { ok, data } = await api("GET", url);
     if (!ok) throw new Error(parseApiError(data).message);
-    toolNames = new Map(data.map((tool) => [tool.id, tool.name]));
-    catalogueStatus.textContent = data.length === 0 ? "Aucun outil pour l'instant." : `${data.length} outil(s)`;
+    // On complète la table des noms sans l'écraser : un catalogue filtré ne contient pas tous les outils.
+    data.forEach((tool) => toolNames.set(tool.id, tool.name));
+    const empty = category ? `Aucun outil dans la catégorie ${category}.` : "Aucun outil pour l'instant.";
+    catalogueStatus.textContent = data.length === 0 ? empty : `${data.length} outil(s)`;
     catalogue.replaceChildren(...data.map(renderTool));
   } catch (err) {
     catalogue.replaceChildren();
@@ -284,6 +289,9 @@ borrowForm.addEventListener("submit", borrowTool);
 damageForm.addEventListener("submit", signalDamage);
 respondForm.addEventListener("submit", respond);
 $("#catalogue-refresh").addEventListener("click", loadCatalogue);
+// Le filtre reprend les catégories du formulaire « Prêter un outil » (liste unique dans la page).
+categoryFilter.append(...[...$("#category").options].filter((o) => o.value).map((o) => new Option(o.text, o.value)));
+categoryFilter.addEventListener("change", loadCatalogue);
 $("#my-loans-refresh").addEventListener("click", loadMyLoans);
 $("#tool-dialog-close").addEventListener("click", () => dialog.close());
 
