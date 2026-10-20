@@ -59,6 +59,14 @@ Content-Type: application/json
   "name": "Perceuse",
   "category": "Perçage"
 }
+
+### US-06 Demande qui chevauche un prêt accepté → 409 (après avoir accepté la demande US-04 avec US-05)
+POST {{baseUrl}}/api/loans
+Content-Type: application/json
+X-User-Id: 3
+
+{ "toolId": "3", "startDate": "2026-11-03", "endDate": "2026-11-05" }
+
 ### US-04 Demander l'emprunt d'un outil (Alice, voisine 1, demande la tondeuse 3)
 POST {{baseUrl}}/api/loans
 Content-Type: application/json
