@@ -51,7 +51,19 @@ API : `PATCH /api/tools/:id/abime`, avec l'en-tête `X-User-Id`, sans corps.
 
 ## Stories Done (n° de PR)
 
-<!-- À compléter -->
+| Story | PR | Interface |
+|---|---|---|
+| US-01 Catalogue des outils | #3 | #10 |
+| US-02 Prêter un outil | #5 | #10 |
+| US-03 Fiche d'un outil | #11 | #12 |
+| US-04 Demander un emprunt | #6 | #12 |
+| US-05 Accepter / refuser une demande | #7 | #12 |
+| US-06 Refuser un chevauchement | #9 | #12 |
+| US-07 Déclarer un retour | poussée directement sur main (`74bd072`), sans PR ; correctifs #13, #15 | #16 |
+| US-08 Mes demandes et emprunts | #8 | #12 |
+| US-15 Signaler un outil abîmé | #14 | #14 |
+
+Technique : stockage Supabase #2, alignement du schéma #4, revert de la PR #17 (main ne démarrait plus) #19.
 
 ## Vidéo de démo
 
