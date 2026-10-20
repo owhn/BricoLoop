@@ -8,10 +8,11 @@
     "node": ">=24"
   },
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node --env-file-if-exists=.env src/server.js",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
-    "check": "npm run lint && npm run test"
+    "check": "npm run lint && npm run test",
+    "db:seed": "node --env-file-if-exists=.env scripts/db-seed.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
