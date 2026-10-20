@@ -65,3 +65,10 @@ Content-Type: application/json
 X-User-Id: 1
 
 { "toolId": "3", "startDate": "2026-11-02", "endDate": "2026-11-04" }
+
+### US-05 Accepter une demande (Bilal, voisin 2, propriétaire de la tondeuse 3)
+PATCH {{baseUrl}}/api/loans/1
+Content-Type: application/json
+X-User-Id: 2
+
+{ "status": "accepted" }
