@@ -2,3 +2,53 @@
 
 ### Santé de l'API
 GET {{baseUrl}}/health
+
+### US-02 — prêter un outil
+POST {{baseUrl}}/api/tools
+X-User-Id: u1
+Content-Type: application/json
+
+{
+  "name": "Scie sauteuse",
+  "category": "Perçage",
+  "description": "600 W, lames bois et métal."
+}
+
+### US-02 — sans description
+POST {{baseUrl}}/api/tools
+X-User-Id: u2
+Content-Type: application/json
+
+{
+  "name": "Échelle 3 m",
+  "category": "Autre"
+}
+
+### US-02 — erreur : nom trop court → 400 name
+POST {{baseUrl}}/api/tools
+X-User-Id: u1
+Content-Type: application/json
+
+{
+  "name": "a",
+  "category": "Perçage"
+}
+
+### US-02 — erreur : catégorie hors liste → 400 category
+POST {{baseUrl}}/api/tools
+X-User-Id: u1
+Content-Type: application/json
+
+{
+  "name": "Robot pâtissier",
+  "category": "Cuisine"
+}
+
+### US-02 — erreur : sans X-User-Id → 401
+POST {{baseUrl}}/api/tools
+Content-Type: application/json
+
+{
+  "name": "Perceuse",
+  "category": "Perçage"
+}
